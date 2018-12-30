@@ -1,0 +1,49 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Tue Jun 19 11:18:37 2018
+
+@author: Fesh
+"""
+###################################################################################
+##1. This Script will capture and save to file, a stream of tweets according to the keyworkd inout by the user. 
+##2. The file is saved as a "keyword.json"
+##3. If this script is run more than once with the same keyword, the initial file saved with the keyword will be incremented
+##4. Script will run till it is stopped with "Ctrl+C" twice.
+##################################################################################
+
+#import the required libraries
+import tweepy
+from tweepy.streaming import StreamListener
+from tweepy import OAuthHandler
+from tweepy import Stream
+
+access_token = "input yours"
+access_token_secret = "input yours"
+consumer_key = "input yours"
+consumer_secret = "input yours"
+
+#authenticate with your creds
+auth =  tweepy.OAuthHandler(consumer_key, consumer_secret)
+auth.set_access_token(access_token,access_token_secret)
+
+api=tweepy.API(auth)
+Tracker=input('What will you like to track?: ')
+
+
+class MyStreamListener(tweepy.StreamListener):
+
+    def on_data(self, data, track=Tracker):
+        with open(Tracker + ".json", "a",encoding="utf-8") as file:
+            file.write(data)
+            print(data)
+        
+    def on_error(self, status_code):
+        if status_code == 420:
+            #returning False in on_data disconnects the stream
+            return False
+
+
+myStreamListener = MyStreamListener()
+myStream = tweepy.Stream(auth = api.auth, listener=myStreamListener)
+
+myStream.filter(track=[Tracker])
